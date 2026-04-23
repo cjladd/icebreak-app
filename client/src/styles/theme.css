@@ -1,0 +1,47 @@
+/* Three distinct mode themes, applied via <body data-mode="..."> */
+
+body[data-mode='friendly'] {
+  --bg: #0a1614;
+  --bg-card: #0f2320;
+  --border: #1f3a36;
+  --text: #e6fff9;
+  --text-muted: #7fa69e;
+  --accent: #5eead4;
+  --accent-soft: rgba(94, 234, 212, 0.12);
+  --accent-on: #0a1614;
+}
+
+body[data-mode='romantic'] {
+  --bg: #1a0a14;
+  --bg-card: #2a0f1e;
+  --border: #3d1a2c;
+  --text: #ffe6f0;
+  --text-muted: #c78aa0;
+  --accent: #ec4899;
+  --accent-soft: rgba(236, 72, 153, 0.14);
+  --accent-on: #1a0a14;
+}
+
+body[data-mode='party'] {
+  --bg: #141108;
+  --bg-card: #1f1a0d;
+  --border: #3a2f15;
+  --text: #fff4d6;
+  --text-muted: #b89a5a;
+  --accent: #facc15;
+  --accent-soft: rgba(250, 204, 21, 0.14);
+  --accent-on: #141108;
+}
+
+/* Neutral fallback for non-mode pages (auth, profile, thread) */
+body:not([data-mode]),
+body[data-mode='neutral'] {
+  --bg: #0b0b12;
+  --bg-card: #15151f;
+  --border: #262633;
+  --text: #e8e8f0;
+  --text-muted: #8a8a99;
+  --accent: #8b5cf6;
+  --accent-soft: rgba(139, 92, 246, 0.14);
+  --accent-on: #0b0b12;
+}
