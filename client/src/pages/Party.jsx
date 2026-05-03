@@ -30,7 +30,7 @@ export default function Party() {
   return (
     <div>
       <header className="card" style={{ marginBottom: 16 }}>
-        <h1 style={{ margin: 0, color: 'var(--accent)' }}>⚡ Party Mode</h1>
+        <h1 style={{ margin: 0, color: 'var(--accent)' }}>Party Mode</h1>
         <p style={{ margin: '6px 0 0', color: 'var(--text-muted)' }}>
           Find your crew. Make a memory.
         </p>

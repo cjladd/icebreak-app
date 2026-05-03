@@ -25,9 +25,9 @@ export default function ModeNav() {
       <Link to="/" style={styles.brand}>vibe.</Link>
 
       <div style={{ display: 'flex', gap: 2, padding: 3, borderRadius: 999, border: '1px solid var(--border)', background: 'var(--bg)' }}>
-        <NavLink to="/friendly" style={modeLink}>👋 Friendly</NavLink>
-        <NavLink to="/romantic" style={modeLink}>+ Romantic</NavLink>
-        <NavLink to="/party" style={modeLink}>⚡ Party</NavLink>
+        <NavLink to="/friendly" style={modeLink}>Friendly</NavLink>
+        <NavLink to="/romantic" style={modeLink}>Romantic</NavLink>
+        <NavLink to="/party" style={modeLink}>Party</NavLink>
       </div>
 
       <div style={{ marginLeft: 'auto' }}>

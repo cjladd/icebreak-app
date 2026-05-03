@@ -20,7 +20,7 @@ export default function Friendly() {
       {/* Header */}
       <header className="card" style={styles.header}>
         <div>
-          <h1 style={styles.title}>👋 Friendly Mode</h1>
+          <h1 style={styles.title}>Friendly Mode</h1>
           <p style={styles.tagline}>Meet people. No pressure.</p>
         </div>
         <span className="tag" style={styles.modeTag}>FRIENDS</span>
@@ -35,13 +35,13 @@ export default function Friendly() {
           style={tab === 'feed' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
           onClick={() => setTab('feed')}
         >
-          📋 FEED
+          FEED
         </button>
         <button
           style={tab === 'icebreakers' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
           onClick={() => setTab('icebreakers')}
         >
-          ✳ ICEBREAKERS
+          ICEBREAKERS
         </button>
       </div>
 

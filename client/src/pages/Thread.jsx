@@ -111,7 +111,7 @@ export default function Thread() {
           />
           {loggedIn && (
             <button type="button" onClick={() => setIsAnon(a => !a)} style={styles.iconBtn} title={isAnon ? 'Posting anonymously' : 'Post as yourself'}>
-              {isAnon ? '👻' : '🔒'}
+              {isAnon ? 'anon' : 'you'}
             </button>
           )}
           <button type="submit" className="btn" disabled={submitting || !reply.trim()} style={{ flexShrink: 0 }}>

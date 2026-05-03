@@ -54,7 +54,7 @@ export default function Composer({ mode, onPosted }) {
             style={styles.anonBtn}
             title={isAnon ? 'Posting anonymously — click to use your handle' : 'Post as yourself — click to go anonymous'}
           >
-            {isAnon ? '👻' : '🔒'}
+            {isAnon ? 'anon' : 'you'}
           </button>
         )}
 

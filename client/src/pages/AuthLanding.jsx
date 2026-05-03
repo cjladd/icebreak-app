@@ -10,9 +10,9 @@ export default function AuthLanding() {
 
       {/* Mode preview pills */}
       <div style={styles.modePills}>
-        <span style={{ ...styles.pill, background: 'rgba(94,234,212,0.12)', color: '#5eead4' }}>👋 Friendly</span>
-        <span style={{ ...styles.pill, background: 'rgba(236,72,153,0.12)', color: '#ec4899' }}>+ Romantic</span>
-        <span style={{ ...styles.pill, background: 'rgba(250,204,21,0.12)', color: '#facc15' }}>⚡ Party</span>
+        <span style={{ ...styles.pill, background: 'rgba(94,234,212,0.12)', color: '#5eead4' }}>Friendly</span>
+        <span style={{ ...styles.pill, background: 'rgba(236,72,153,0.12)', color: '#ec4899' }}>Romantic</span>
+        <span style={{ ...styles.pill, background: 'rgba(250,204,21,0.12)', color: '#facc15' }}>Party</span>
       </div>
 
       {/* Main CTA */}
@@ -38,12 +38,10 @@ export default function AuthLanding() {
 
       <div style={styles.anonGrid}>
         <Link to="/friendly" style={styles.anonCard}>
-          <span style={styles.anonIcon}>👀</span>
           <strong style={styles.anonLabel}>Browse</strong>
           <p style={styles.anonDesc}>Read posts, explore the feed</p>
         </Link>
         <Link to="/friendly" style={styles.anonCard}>
-          <span style={styles.anonIcon}>👻</span>
           <strong style={styles.anonLabel}>Post Anon</strong>
           <p style={styles.anonDesc}>Drop a post without an account</p>
         </Link>
