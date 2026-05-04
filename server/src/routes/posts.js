@@ -5,12 +5,20 @@ import { requireAuth, optionalAuth } from '../middleware/auth.js';
 const router = Router();
 const MODES = new Set(['friendly', 'romantic', 'party']);
 
-/** GET /api/posts?mode=friendly&sort=new|popular */
-router.get('/', async (req, res, next) => {
+/** GET /api/posts?mode=friendly&sort=new|popular
+ *  Uses optionalAuth so we can flag which posts the requester has already liked
+ *  (drives the filled/empty heart on PostCard). Guests just get liked_by_me = 0. */
+router.get('/', optionalAuth, async (req, res, next) => {
   try {
     const mode = req.query.mode;
     const sort = req.query.sort === 'popular' ? 'popular' : 'new';
-    const params = [];
+
+    // user IDs are positive ints, so 0 safely means "no viewer / never matches"
+    const viewerId = req.user?.id ?? 0;
+
+    // viewerId comes first because the liked_by_me subquery sits in the SELECT,
+    // which is evaluated before the WHERE clause's mode filter
+    const params = [viewerId];
     let where = '';
     if (mode && MODES.has(mode)) { where = 'WHERE p.mode = ?'; params.push(mode); }
 
@@ -20,7 +28,8 @@ router.get('/', async (req, res, next) => {
       `SELECT p.*,
               CASE WHEN p.is_anonymous = 1 THEN NULL ELSE u.handle END AS author_handle,
               (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
-              (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+              (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+              EXISTS(SELECT 1 FROM likes WHERE post_id = p.id AND user_id = ?) AS liked_by_me
        FROM posts p
        LEFT JOIN users u ON u.id = p.user_id
        ${where}
@@ -32,18 +41,20 @@ router.get('/', async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-/** GET /api/posts/:id */
-router.get('/:id', async (req, res, next) => {
+/** GET /api/posts/:id — includes liked_by_me for the Thread page heart */
+router.get('/:id', optionalAuth, async (req, res, next) => {
   try {
+    const viewerId = req.user?.id ?? 0;
     const [[post]] = await pool.execute(
       `SELECT p.*,
               CASE WHEN p.is_anonymous = 1 THEN NULL ELSE u.handle END AS author_handle,
               (SELECT COUNT(*) FROM likes WHERE post_id = p.id) AS like_count,
-              (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count
+              (SELECT COUNT(*) FROM comments WHERE post_id = p.id) AS comment_count,
+              EXISTS(SELECT 1 FROM likes WHERE post_id = p.id AND user_id = ?) AS liked_by_me
        FROM posts p
        LEFT JOIN users u ON u.id = p.user_id
        WHERE p.id = ?`,
-      [req.params.id]
+      [viewerId, req.params.id]
     );
     if (!post) return res.status(404).json({ error: 'Post not found' });
     res.json(post);
@@ -65,7 +76,8 @@ router.post('/', optionalAuth, async (req, res, next) => {
       [userId, mode, title.trim(), body ?? null, category_tag ?? null, anon]
     );
     const [[post]] = await pool.execute('SELECT * FROM posts WHERE id = ?', [result.insertId]);
-    res.status(201).json({ ...post, like_count: 0, comment_count: 0 });
+    // brand-new post — author hasn't liked their own post and there are no likes/comments yet
+    res.status(201).json({ ...post, like_count: 0, comment_count: 0, liked_by_me: 0 });
   } catch (e) { next(e); }
 });
 
