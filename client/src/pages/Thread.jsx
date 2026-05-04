@@ -63,11 +63,43 @@ export default function Thread() {
     }
   }
 
+  /** Toggle like on the main post. Same optimistic-update pattern as PostCard:
+   *  flip immediately, reconcile with the server's response, roll back on error. */
+  async function toggleLike() {
+    if (!loggedIn) {
+      navigate('/auth');
+      return;
+    }
+    // Snapshot the pre-click state so we can roll back cleanly if the request fails.
+    const wasLiked = Boolean(post.liked_by_me);
+    const nextLiked = !wasLiked;
+    const delta = nextLiked ? 1 : -1;
+
+    setPost(p => ({ ...p, liked_by_me: nextLiked ? 1 : 0, like_count: (p.like_count ?? 0) + delta }));
+
+    try {
+      const { liked: serverLiked } = await api.post(`/posts/${post.id}/like`, {});
+      // Reconcile if the server's view differs from our optimistic guess.
+      if (serverLiked !== nextLiked) {
+        setPost(p => ({
+          ...p,
+          liked_by_me: serverLiked ? 1 : 0,
+          like_count: (p.like_count ?? 0) + (serverLiked ? 1 : -1) - delta,
+        }));
+      }
+    } catch (err) {
+      // Roll back to the original state.
+      setPost(p => ({ ...p, liked_by_me: wasLiked ? 1 : 0, like_count: (p.like_count ?? 0) - delta }));
+      console.error('like failed:', err.message);
+    }
+  }
+
   if (loading) return <p style={{ color: 'var(--text-muted)', padding: 24 }}>Loading...</p>;
   if (notFound || !post) return <p style={{ color: 'var(--text-muted)', padding: 24 }}>Post not found.</p>;
 
   const postHandle = post.is_anonymous ? 'anon' : (post.author_handle ?? 'anon');
   const postInitial = postHandle === 'anon' ? '?' : postHandle[0].toUpperCase();
+  const liked = Boolean(post.liked_by_me);
 
   return (
     <div>
@@ -90,7 +122,16 @@ export default function Thread() {
         {post.body && <p style={{ margin: '0 0 14px', color: 'var(--text-muted)', fontSize: 15, lineHeight: 1.6 }}>{post.body}</p>}
 
         <footer style={{ display: 'flex', alignItems: 'center', gap: 16, paddingTop: 12, borderTop: '1px solid var(--border)', color: 'var(--text-muted)', fontSize: 13 }}>
-          <span>♡ {post.like_count ?? 0}</span>
+          {/* Like toggle — filled heart + accent color when the viewer has liked this post */}
+          <button
+            onClick={toggleLike}
+            aria-pressed={liked}
+            aria-label={liked ? 'Unlike post' : 'Like post'}
+            style={{ ...styles.likeBtn, color: liked ? 'var(--accent)' : 'var(--text-muted)' }}
+          >
+            <span style={{ fontSize: 16, lineHeight: 1 }}>{liked ? '♥' : '♡'}</span>
+            <span>{post.like_count ?? 0}</span>
+          </button>
           <span>💬 {comments.length}</span>
           <span style={{ marginLeft: 'auto', cursor: 'pointer' }}>↗ Share</span>
         </footer>
@@ -196,6 +237,19 @@ const styles = {
   },
   handle: { color: 'var(--text)', fontSize: 14, fontWeight: 600 },
   time: { color: 'var(--text-muted)', fontSize: 12, marginTop: 2 },
+  // Mimics the static stat spans (no border/background) so the button looks
+  // like part of the footer row, not a heavy CTA.
+  likeBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    background: 'transparent',
+    border: 'none',
+    padding: 0,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    fontSize: 13,
+  },
   composerRow: { display: 'flex', alignItems: 'center', gap: 10 },
   input: {
     flex: 1,
