@@ -2,16 +2,14 @@ import { useState } from 'react';
 import { api } from '../lib/api.js';
 import { isLoggedIn } from '../lib/auth.js';
 
-/**
- * Placeholder post composer. Category autofills from `mode` prop (the page you're on),
- * but the user can override. Erick will polish the final overlay/modal version.
- */
 export default function Composer({ mode, onPosted }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [postAs, setPostAs] = useState(isLoggedIn() ? 'account' : 'anon');
+  const [isAnon, setIsAnon] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  const loggedIn = isLoggedIn();
 
   async function submit(e) {
     e.preventDefault();
@@ -23,7 +21,7 @@ export default function Composer({ mode, onPosted }) {
         mode,
         title: title.trim(),
         body: body.trim() || null,
-        is_anonymous: postAs === 'anon'
+        is_anonymous: isAnon,
       });
       setTitle('');
       setBody('');
@@ -41,23 +39,22 @@ export default function Composer({ mode, onPosted }) {
         type="text"
         placeholder={`Post something in ${mode} mode...`}
         value={title}
-        onChange={(e) => setTitle(e.target.value)}
+        onChange={e => setTitle(e.target.value)}
         style={inputStyle}
       />
       <textarea
         placeholder="Details (optional)"
         value={body}
-        onChange={(e) => setBody(e.target.value)}
+        onChange={e => setBody(e.target.value)}
         rows={2}
         style={{ ...inputStyle, resize: 'vertical' }}
       />
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-        <label style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+        <label style={{ fontSize: 13, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
           <input
             type="checkbox"
-            checked={postAs === 'anon'}
-            onChange={(e) => setPostAs(e.target.checked ? 'anon' : 'account')}
-            style={{ marginRight: 6 }}
+            checked={isAnon}
+            onChange={e => setIsAnon(e.target.checked)}
           />
           Post anonymously
         </label>
@@ -79,5 +76,8 @@ const inputStyle = {
   borderRadius: 8,
   padding: '10px 12px',
   marginBottom: 8,
-  fontFamily: 'inherit'
+  fontFamily: 'inherit',
+  fontSize: 14,
+  outline: 'none',
+  boxSizing: 'border-box',
 };
