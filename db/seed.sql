@@ -1,11 +1,30 @@
 -- Optional dev seed data — load AFTER schema.sql.
--- Creates a couple of anonymous posts per mode so the UI has something to render.
+-- Curated icebreaker-style prompts so the feed reflects the app's purpose
+-- (give people questions to ask) rather than generic social posts.
+-- Two posts per mode, all anonymous so no user account is required to seed.
 USE vibe;
 
 INSERT INTO posts (user_id, mode, title, body, category_tag, is_anonymous) VALUES
-  (NULL, 'friendly', 'Anyone down to hit a local art market this weekend?', 'Looking for people who appreciate thrifting + good coffee. No weirdos.', 'IRL HANGOUT', 1),
-  (NULL, 'friendly', 'Finished rewatching Neon Genesis. Send help.', 'Or just talk to me about it. Either one.', 'POP CULTURE', 1),
-  (NULL, 'romantic', 'Hot take: dinner dates are overrated for a first meet.', 'Coffee walk >>> sitting across a table for 2 hours. Change my mind.', 'HOT TAKE', 1),
-  (NULL, 'romantic', 'What''s a ''small'' thing that actually matters a lot to you?', 'Mine: how someone treats service workers. You can''t hide that.', 'ICEBREAKER', 1),
-  (NULL, 'party',    'Rooftop bar crawl — looking for 4 more', 'Starting at The Twelve Thirty. DM if you''re actually down, no flakers.', 'IRL EVENT', 1),
-  (NULL, 'party',    'Anyone doing Bonnaroo this year?', 'Solo ticket, want to link with a group. Low-maintenance, high-energy.', 'FESTIVAL', 1);
+  -- FRIENDLY: low-stakes, getting-to-know-you
+  (NULL, 'friendly', 'What''s a hobby you''ve picked up in the last year?',
+   'Curious what other people are getting into right now. Drop yours below + how you got started.',
+   'ICEBREAKER', 1),
+  (NULL, 'friendly', 'Coffee, tea, or neither — and why?',
+   'I''m a tea person who pretends to like coffee in social settings. What about you?',
+   'ICEBREAKER', 1),
+
+  -- ROMANTIC: dating-conversation prompts
+  (NULL, 'romantic', 'What''s your love language, and how do you know?',
+   'Bonus points if you have a story that made you realize it.',
+   'ICEBREAKER', 1),
+  (NULL, 'romantic', 'Hot take: dinner dates are overrated for a first meet.',
+   'Coffee walk >>> sitting across a table for 2 hours. Change my mind.',
+   'HOT TAKE', 1),
+
+  -- PARTY: group-vibes prompts
+  (NULL, 'party',    'Wildest spontaneous trip you''ve ever said yes to?',
+   'No filter, no judgment. The more chaotic the better.',
+   'ICEBREAKER', 1),
+  (NULL, 'party',    'Go-to karaoke song, no shame?',
+   'Drop yours. I''ll start: Mr. Brightside (yes, I know).',
+   'ICEBREAKER', 1);
