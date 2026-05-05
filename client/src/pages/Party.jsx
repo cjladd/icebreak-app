@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import Composer from '../components/Composer.jsx';
 import PostCard from '../components/PostCard.jsx';
+import IcebreakerPrompt from '../components/IcebreakerPrompt.jsx';
 import { api } from '../lib/api.js';
 
 /**
@@ -9,6 +10,16 @@ import { api } from '../lib/api.js';
 export default function Party() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Prefill bridge — IcebreakerPrompt's "Use this" button drops the question
+  // into Composer's title field via this key counter.
+  const [prefillTitle, setPrefillTitle] = useState('');
+  const [prefillKey, setPrefillKey] = useState(0);
+
+  function handleUsePrompt(prompt) {
+    setPrefillTitle(prompt);
+    setPrefillKey(k => k + 1);
+  }
 
   useEffect(() => {
     api.get('/posts?mode=party')
@@ -39,7 +50,15 @@ export default function Party() {
         </div>
       </header>
 
-      <Composer mode="party" onPosted={(p) => setPosts((xs) => [p, ...xs])} />
+      {/* Curated party prompt — clicking "Use this" prefills the composer below */}
+      <IcebreakerPrompt mode="party" onUsePrompt={handleUsePrompt} />
+
+      <Composer
+        mode="party"
+        onPosted={(p) => setPosts((xs) => [p, ...xs])}
+        prefillTitle={prefillTitle}
+        prefillKey={prefillKey}
+      />
 
       {loading && <p style={{ color: 'var(--text-muted)' }}>Loading...</p>}
 

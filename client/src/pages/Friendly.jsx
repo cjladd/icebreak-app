@@ -1,12 +1,25 @@
 import { useEffect, useState } from 'react';
 import Composer from '../components/Composer.jsx';
 import PostCard from '../components/PostCard.jsx';
+import IcebreakerPrompt from '../components/IcebreakerPrompt.jsx';
 import { api } from '../lib/api.js';
 
 export default function Friendly() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('feed'); // 'feed' | 'icebreakers'
+
+  // Prefill bridge between IcebreakerPrompt and Composer. Bumping the key
+  // signals "user picked a new prompt" — Composer copies the title into its
+  // input field. The counter (rather than the title alone) lets the same
+  // prompt re-fill the box on repeated clicks.
+  const [prefillTitle, setPrefillTitle] = useState('');
+  const [prefillKey, setPrefillKey] = useState(0);
+
+  function handleUsePrompt(prompt) {
+    setPrefillTitle(prompt);
+    setPrefillKey(k => k + 1);
+  }
 
   useEffect(() => {
     api.get('/posts?mode=friendly')
@@ -26,8 +39,16 @@ export default function Friendly() {
         <span className="tag" style={styles.modeTag}>FRIENDS</span>
       </header>
 
+      {/* Curated icebreaker prompt — clicking "Use this" prefills the composer below */}
+      <IcebreakerPrompt mode="friendly" onUsePrompt={handleUsePrompt} />
+
       {/* Composer */}
-      <Composer mode="friendly" onPosted={(p) => setPosts((xs) => [p, ...xs])} />
+      <Composer
+        mode="friendly"
+        onPosted={(p) => setPosts((xs) => [p, ...xs])}
+        prefillTitle={prefillTitle}
+        prefillKey={prefillKey}
+      />
 
       {/* Feed / Icebreakers tab toggle */}
       <div style={styles.tabs}>
