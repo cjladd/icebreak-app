@@ -10,10 +10,39 @@ import { isLoggedIn } from '../lib/auth.js';
  * than the value itself so re-clicking the same prompt still works even if
  * the user had already typed over it.
  */
+
+const MODE_TAGS = {
+  friendly: [
+    { label: '🧊 Icebreaker', value: 'ICEBREAKER' },
+    { label: '👋 New Here', value: 'NEW HERE' },
+    { label: '🎮 Hobbies', value: 'HOBBIES' },
+    { label: '📺 Pop Culture', value: 'POP CULTURE' },
+    { label: '☕ Daily Life', value: 'DAILY LIFE' },
+    { label: '🎯 Goals', value: 'GOALS' },
+  ],
+  romantic: [
+    { label: '🧊 Icebreaker', value: 'ICEBREAKER' },
+    { label: '💞 First Date', value: 'FIRST DATE' },
+    { label: '💌 Long Distance', value: 'LONG DISTANCE' },
+    { label: '🌹 Hot Take', value: 'HOT TAKE' },
+    { label: '💘 Crush', value: 'CRUSH' },
+    { label: '🚩 Red Flags', value: 'RED FLAGS' },
+  ],
+  party: [
+    { label: '🧊 Icebreaker', value: 'ICEBREAKER' },
+    { label: '🎉 Night Out', value: 'NIGHT OUT' },
+    { label: '🍻 Drinks', value: 'DRINKS' },
+    { label: '🎶 Music', value: 'MUSIC' },
+    { label: '🚗 Road Trip', value: 'ROAD TRIP' },
+    { label: '🕺 Group Plans', value: 'GROUP PLANS' },
+  ],
+};
+
 export default function Composer({ mode, onPosted, prefillTitle = '', prefillKey = 0 }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isAnon, setIsAnon] = useState(false);
+  const [tag, setTag] = useState(null); // null | 'ICEBREAKER' | 'HOT TAKE'
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,6 +53,7 @@ export default function Composer({ mode, onPosted, prefillTitle = '', prefillKey
   useEffect(() => {
     if (prefillKey > 0 && prefillTitle) {
       setTitle(prefillTitle);
+      setTag('ICEBREAKER');
     }
   }, [prefillKey, prefillTitle]);
 
@@ -37,10 +67,12 @@ export default function Composer({ mode, onPosted, prefillTitle = '', prefillKey
         mode,
         title: title.trim(),
         body: body.trim() || null,
+        category_tag: tag,
         is_anonymous: isAnon,
       });
       setTitle('');
       setBody('');
+      setTag(null);
       onPosted?.(post);
     } catch (err) {
       setError(err.message);
@@ -65,7 +97,22 @@ export default function Composer({ mode, onPosted, prefillTitle = '', prefillKey
         rows={2}
         style={{ ...inputStyle, resize: 'vertical' }}
       />
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
+
+      {/* Tag chips — click to select, click again to deselect */}
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+        {(MODE_TAGS[mode] ?? []).map(({ label, value }) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTag(tag === value ? null : value)}
+            style={tag === value ? { ...chipStyle, ...chipActiveStyle } : chipStyle}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <label style={{ fontSize: 13, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
           <input
             type="checkbox"
@@ -96,4 +143,23 @@ const inputStyle = {
   fontSize: 14,
   outline: 'none',
   boxSizing: 'border-box',
+};
+
+const chipStyle = {
+  padding: '4px 10px',
+  borderRadius: 999,
+  border: '1px solid var(--border)',
+  background: 'transparent',
+  color: 'var(--text-muted)',
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.06em',
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
+
+const chipActiveStyle = {
+  background: 'var(--accent)',
+  color: 'var(--accent-on)',
+  border: '1px solid var(--accent)',
 };
