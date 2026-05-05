@@ -56,11 +56,27 @@ export default function PostCard({ post }) {
     <article className="card" style={styles.card}>
       <header style={styles.header}>
         <div style={styles.authorRow}>
-          <div style={styles.avatar}>{initial}</div>
-          <div>
-            <span style={styles.handle}>@{handle}</span>
-            <div style={styles.time}>{timeAgo(post.created_at)}</div>
-          </div>
+          {handle !== 'anon' ? (
+            <Link
+              to={`/profile/${handle}`}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={styles.avatar}>{initial}</div>
+              <div>
+                <span style={styles.handle}>@{handle}</span>
+                <div style={styles.time}>{timeAgo(post.created_at)}</div>
+              </div>
+            </Link>
+          ) : (
+            <>
+              <div style={styles.avatar}>{initial}</div>
+              <div>
+                <span style={styles.handle}>@{handle}</span>
+                <div style={styles.time}>{timeAgo(post.created_at)}</div>
+              </div>
+            </>
+          )}
         </div>
         {post.category_tag && <span className="tag">{post.category_tag}</span>}
       </header>
