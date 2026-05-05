@@ -25,6 +25,10 @@ export default function Party() {
         <p style={{ margin: '6px 0 10px', color: 'var(--text-muted)' }}>
           Find your crew. Make a memory.
         </p>
+        
+        <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
+          Trending IRL plans, group vibes, and spontaneous ideas.
+        </p>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <span className="tag">🎉 Night Out</span>
