@@ -14,7 +14,7 @@ import { api } from '../lib/api.js';
 export default function Romantic() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('feed'); // 'feed' | 'icebreakers'
+  const [tab, setTab] = useState('recent'); // 'recent' | 'top' | 'icebreakers'
 
   // Prefill bridge between IcebreakerPrompt and Composer. The key counter
   // lets repeated clicks on the same prompt still re-fill the title field.
@@ -28,7 +28,9 @@ export default function Romantic() {
 
   const visiblePosts = tab === 'icebreakers'
     ? posts.filter(p => p.category_tag === 'ICEBREAKER')
-    : posts;
+    : tab === 'top'
+    ? [...posts].sort((a, b) => (b.like_count ?? 0) - (a.like_count ?? 0))
+    : posts; // 'recent' — already date-sorted from server
 
   useEffect(() => {
     api.get('/posts?mode=romantic')
@@ -70,13 +72,19 @@ export default function Romantic() {
         prefillKey={prefillKey}
       />
 
-      {/* Feed / Icebreakers tab toggle */}
+      {/* Sort / filter tabs */}
       <div style={styles.tabs}>
         <button
-          style={tab === 'feed' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
-          onClick={() => setTab('feed')}
+          style={tab === 'recent' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
+          onClick={() => setTab('recent')}
         >
-          FEED
+          RECENT
+        </button>
+        <button
+          style={tab === 'top' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
+          onClick={() => setTab('top')}
+        >
+          TOP
         </button>
         <button
           style={tab === 'icebreakers' ? { ...styles.tab, ...styles.tabActive } : styles.tab}

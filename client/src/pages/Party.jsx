@@ -10,7 +10,7 @@ import { api } from '../lib/api.js';
 export default function Party() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState('feed'); // 'feed' | 'icebreakers'
+  const [tab, setTab] = useState('recent'); // 'recent' | 'top' | 'icebreakers'
 
   // Prefill bridge — IcebreakerPrompt's "Use this" button drops the question
   // into Composer's title field via this key counter.
@@ -24,7 +24,9 @@ export default function Party() {
 
   const visiblePosts = tab === 'icebreakers'
     ? posts.filter(p => p.category_tag === 'ICEBREAKER')
-    : posts;
+    : tab === 'top'
+    ? [...posts].sort((a, b) => (b.like_count ?? 0) - (a.like_count ?? 0))
+    : posts; // 'recent' — already date-sorted from server
 
   useEffect(() => {
     api.get('/posts?mode=party')
@@ -65,13 +67,19 @@ export default function Party() {
         prefillKey={prefillKey}
       />
 
-      {/* Feed / Icebreakers tab toggle */}
+      {/* Sort / filter tabs */}
       <div style={styles.tabs}>
         <button
-          style={tab === 'feed' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
-          onClick={() => setTab('feed')}
+          style={tab === 'recent' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
+          onClick={() => setTab('recent')}
         >
-          FEED
+          RECENT
+        </button>
+        <button
+          style={tab === 'top' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
+          onClick={() => setTab('top')}
+        >
+          TOP
         </button>
         <button
           style={tab === 'icebreakers' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
