@@ -14,15 +14,21 @@ import Popular from './pages/Popular.jsx';
 const MODE_BY_PATH = {
   '/friendly': 'friendly',
   '/romantic': 'romantic',
-  '/party': 'party'
+  '/party': 'party',
+  '/popular': 'friendly',
 };
+
+function resolveMode(pathname) {
+  if (MODE_BY_PATH[pathname]) return MODE_BY_PATH[pathname];
+  if (pathname.startsWith('/profile') || pathname.startsWith('/thread')) return 'neutral';
+  return 'neutral';
+}
 
 export default function App() {
   const location = useLocation();
 
   useEffect(() => {
-    const mode = MODE_BY_PATH[location.pathname] ?? 'friendly';
-    document.body.dataset.mode = mode;
+    document.body.dataset.mode = resolveMode(location.pathname);
   }, [location.pathname]);
 
   return (
