@@ -10,6 +10,7 @@ import { api } from '../lib/api.js';
 export default function Party() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState('feed'); // 'feed' | 'icebreakers'
 
   // Prefill bridge — IcebreakerPrompt's "Use this" button drops the question
   // into Composer's title field via this key counter.
@@ -20,6 +21,10 @@ export default function Party() {
     setPrefillTitle(prompt);
     setPrefillKey(k => k + 1);
   }
+
+  const visiblePosts = tab === 'icebreakers'
+    ? posts.filter(p => p.category_tag === 'ICEBREAKER')
+    : posts;
 
   useEffect(() => {
     api.get('/posts?mode=party')
@@ -60,15 +65,56 @@ export default function Party() {
         prefillKey={prefillKey}
       />
 
+      {/* Feed / Icebreakers tab toggle */}
+      <div style={styles.tabs}>
+        <button
+          style={tab === 'feed' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
+          onClick={() => setTab('feed')}
+        >
+          FEED
+        </button>
+        <button
+          style={tab === 'icebreakers' ? { ...styles.tab, ...styles.tabActive } : styles.tab}
+          onClick={() => setTab('icebreakers')}
+        >
+          ICEBREAKERS
+        </button>
+      </div>
+
       {loading && <p style={{ color: 'var(--text-muted)' }}>Loading...</p>}
 
-      {!loading && posts.length === 0 && (
+      {!loading && visiblePosts.length === 0 && (
         <p style={{ color: 'var(--text-muted)' }}>No posts yet — be the first!</p>
       )}
 
-      {posts.map((p) => (
+      {visiblePosts.map((p) => (
         <PostCard key={p.id} post={p} />
       ))}
     </div>
   );
 }
+
+const styles = {
+  tabs: {
+    display: 'flex',
+    gap: 8,
+    marginBottom: 16,
+  },
+  tab: {
+    padding: '8px 18px',
+    borderRadius: 999,
+    border: '1px solid var(--border)',
+    background: 'transparent',
+    color: 'var(--text-muted)',
+    fontWeight: 600,
+    fontSize: 12,
+    cursor: 'pointer',
+    letterSpacing: '0.06em',
+    fontFamily: 'inherit',
+  },
+  tabActive: {
+    background: 'var(--accent)',
+    color: 'var(--accent-on)',
+    border: '1px solid var(--accent)',
+  },
+};

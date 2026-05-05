@@ -21,6 +21,10 @@ export default function Friendly() {
     setPrefillKey(k => k + 1);
   }
 
+  const visiblePosts = tab === 'icebreakers'
+    ? posts.filter(p => p.category_tag === 'ICEBREAKER')
+    : posts;
+
   useEffect(() => {
     api.get('/posts?mode=friendly')
       .then((data) => setPosts(data.posts ?? []))
@@ -80,10 +84,10 @@ export default function Friendly() {
 
       {/* Posts */}
       {loading && <p style={{ color: 'var(--text-muted)' }}>Loading...</p>}
-      {!loading && posts.length === 0 && (
+      {!loading && visiblePosts.length === 0 && (
         <p style={{ color: 'var(--text-muted)' }}>No posts yet — be the first!</p>
       )}
-      {posts.map((p) => <PostCard key={p.id} post={p} />)}
+      {visiblePosts.map((p) => <PostCard key={p.id} post={p} />)}
     </div>
   );
 }
