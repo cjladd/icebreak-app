@@ -1,8 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../lib/api.js';
 import { isLoggedIn } from '../lib/auth.js';
 
-export default function Composer({ mode, onPosted }) {
+/**
+ * Prefill behavior: pages can pass `prefillTitle` along with a `prefillKey`
+ * counter (the parent increments it each time the user fires a prefill action,
+ * e.g. clicking "Use this prompt" on IcebreakerPrompt). When the key changes
+ * we copy `prefillTitle` into the title field. We watch the counter rather
+ * than the value itself so re-clicking the same prompt still works even if
+ * the user had already typed over it.
+ */
+export default function Composer({ mode, onPosted, prefillTitle = '', prefillKey = 0 }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [isAnon, setIsAnon] = useState(false);
@@ -10,6 +18,14 @@ export default function Composer({ mode, onPosted }) {
   const [error, setError] = useState(null);
 
   const loggedIn = isLoggedIn();
+
+  // Apply prefill whenever the parent bumps the key. Skip the initial mount
+  // (key === 0) so we don't clobber an empty field on first render.
+  useEffect(() => {
+    if (prefillKey > 0 && prefillTitle) {
+      setTitle(prefillTitle);
+    }
+  }, [prefillKey, prefillTitle]);
 
   async function submit(e) {
     e.preventDefault();
