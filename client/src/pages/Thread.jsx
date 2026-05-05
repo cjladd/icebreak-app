@@ -29,9 +29,13 @@ export default function Thread() {
       .then(([postData, commentData]) => {
         setPost(postData);
         setComments(commentData.comments ?? []);
+        // Inherit the post's mode so the page theme matches where you came from.
+        if (postData.mode) document.body.dataset.mode = postData.mode;
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
+
+    return () => { document.body.dataset.mode = 'neutral'; };
   }, [id]);
 
   async function submitReply(e) {
