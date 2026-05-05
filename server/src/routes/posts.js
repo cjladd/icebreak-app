@@ -76,8 +76,9 @@ router.post('/', optionalAuth, async (req, res, next) => {
       [userId, mode, title.trim(), body ?? null, category_tag ?? null, anon]
     );
     const [[post]] = await pool.execute('SELECT * FROM posts WHERE id = ?', [result.insertId]);
-    // brand-new post — author hasn't liked their own post and there are no likes/comments yet
-    res.status(201).json({ ...post, like_count: 0, comment_count: 0, liked_by_me: 0 });
+    // brand-new post — author hasn't liked their own post and there are no likes/comments yet.
+    // author_handle comes from req.user rather than a JOIN since we already have it in scope.
+    res.status(201).json({ ...post, author_handle: anon ? null : (req.user?.handle ?? null), like_count: 0, comment_count: 0, liked_by_me: 0 });
   } catch (e) { next(e); }
 });
 
