@@ -50,4 +50,16 @@ router.get('/:handle', optionalAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+/** PATCH /api/users/me — update bio for the logged-in user */
+router.patch('/me', requireAuth, async (req, res, next) => {
+  try {
+    const bio = req.body.bio ?? null;
+    await pool.execute(
+      'UPDATE users SET bio = ? WHERE id = ?',
+      [bio, req.user.id]
+    );
+    res.json({ bio });
+  } catch (e) { next(e); }
+});
+
 export default router;

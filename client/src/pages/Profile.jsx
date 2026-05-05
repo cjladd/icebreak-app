@@ -29,6 +29,10 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [editingBio, setEditingBio] = useState(false);
+  const [bioValue, setBioValue] = useState('');
+  const [bioSaving, setBioSaving] = useState(false);
+
   useEffect(() => {
     if (!handle) {
       const me = getUser();
@@ -48,6 +52,24 @@ export default function Profile() {
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [handle, navigate]);
+
+  const isOwner = getUser()?.handle === handle;
+
+  function startEditBio() {
+    setBioValue(profile.bio ?? '');
+    setEditingBio(true);
+  }
+
+  async function saveBio() {
+    setBioSaving(true);
+    try {
+      const { bio } = await api.patch('/users/me', { bio: bioValue.trim() || null });
+      setProfile(p => ({ ...p, bio }));
+      setEditingBio(false);
+    } finally {
+      setBioSaving(false);
+    }
+  }
 
   if (loading) return <p style={s.muted}>Loading...</p>;
 
@@ -75,7 +97,38 @@ export default function Profile() {
             <span className="tag">MEMBER</span>
           </div>
           <div style={s.handle}>@{profile.handle}</div>
-          {profile.bio && <p style={s.bio}>{profile.bio}</p>}
+          {editingBio ? (
+            <div style={{ marginTop: 8 }}>
+              <textarea
+                value={bioValue}
+                onChange={e => setBioValue(e.target.value)}
+                rows={3}
+                maxLength={300}
+                placeholder="Write a short bio..."
+                style={s.bioInput}
+              />
+              <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+                <button className="btn" onClick={saveBio} disabled={bioSaving} style={{ fontSize: 12, padding: '5px 14px' }}>
+                  {bioSaving ? 'Saving...' : 'Save'}
+                </button>
+                <button onClick={() => setEditingBio(false)} style={s.cancelBtn}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {profile.bio
+                ? <p style={s.bio}>{profile.bio}</p>
+                : isOwner && <p style={{ ...s.bio, fontStyle: 'italic' }}>No bio yet.</p>
+              }
+              {isOwner && !editingBio && (
+                <button onClick={startEditBio} style={s.editBioBtn}>
+                  {profile.bio ? 'Edit bio' : '+ Add bio'}
+                </button>
+              )}
+            </>
+          )}
         </div>
       </div>
 
@@ -139,4 +192,41 @@ const s = {
   },
   feedCount: { color: 'var(--text-muted)', fontSize: 13 },
   muted: { color: 'var(--text-muted)', fontSize: 14, padding: '8px 0' },
+  bioInput: {
+    display: 'block',
+    width: '100%',
+    background: 'var(--bg)',
+    color: 'var(--text)',
+    border: '1px solid var(--border)',
+    borderRadius: 8,
+    padding: '8px 10px',
+    fontFamily: 'inherit',
+    fontSize: 14,
+    resize: 'vertical',
+    boxSizing: 'border-box',
+    outline: 'none',
+  },
+  editBioBtn: {
+    marginTop: 6,
+    background: 'transparent',
+    border: '1px solid var(--border)',
+    borderRadius: 999,
+    color: 'var(--text-muted)',
+    fontSize: 12,
+    padding: '4px 12px',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    fontWeight: 600,
+    letterSpacing: '0.04em',
+  },
+  cancelBtn: {
+    background: 'transparent',
+    border: '1px solid var(--border)',
+    borderRadius: 999,
+    color: 'var(--text-muted)',
+    fontSize: 12,
+    padding: '5px 14px',
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+  },
 };
